@@ -1,14 +1,12 @@
 import React from 'react';
+import {useState} from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
-import{Nav, NavItem, NavLink, Button, Container, Row} from 'reactstrap';
+import{Nav, NavItem, NavLink, Button, Container, Row, PopoverHeader, PopoverBody, UncontrolledPopover, ListGroup, ListGroupItem} from 'reactstrap';
 import Movie from './components/movie';
 
 
-
 function App() {
-
-
 
   var movieData = [
   {name: "StarWars : L'ascension de SkyWalker", img: "./img/starwars.jpg", desc: "La conclusion de la saga SkyWalker. De nouvells légendes vont naître dans cette....", note: 6, vote: 8},
@@ -20,14 +18,44 @@ function App() {
   {name: "Badboys 3 : Return to Bad Guys", img: "./img/badboy3.jpg", desc: "Les polices sont retourner...", note: 8, vote: 5}
 ]
 
+const [moviesCount, setMoviesCount] = useState(0);
+const [moviesWishList, setMoviesWishList] = useState([]);
+
+
+var handleClickAddMovie = (name, img) => {
+  setMoviesCount(moviesCount+1);
+  setMoviesWishList([...moviesWishList, {name, img}]);
+}
+
+var handleClickDeleteMovie = (name) => {
+  if(moviesCount <= 0){
+    setMoviesCount(0)
+  } else{
+  setMoviesCount(moviesCount-1);
+
+  setMoviesWishList( moviesWishList.filter( (e) => {return name !== e.name} ) )
+}}
+
 var movieList = movieData.map((movie,i) => {
-  return(<Movie key={i} movieName={movie.name} movieDesc={movie.desc} movieImg={movie.img} globalRating={movie.note} globalCountRating={movie.vote} />)
+ var result = moviesWishList.find(e => e.name == movie.name)
+  var isSee = false
+  if(result != undefined){
+    isSee = true
+  }
+  return(<Movie key={i} movieSee={isSee} handleClickparent={handleClickAddMovie} handleClickDeleteMovieParent={handleClickDeleteMovie} movieName={movie.name} movieDesc={movie.desc} movieImg={movie.img} globalRating={movie.note} globalCountRating={movie.vote}/>)
+})
+
+var wishList = moviesWishList.map((movie,i) => {
+  console.log(moviesWishList)
+  return <ListGroupItem style={{cursor:'pointer'}} onClick={() => handleClickDeleteMovie(movie.name)} key={i}><img width="80" src={movie.img}></img> {movie.name}</ListGroupItem>
 })
 
   return (
   <div style={{backgrounColor:"#232528"}}>
   <Container>
-        {/* Navigation Bar */}
+
+{/* Navigation Bar */}
+
     <Nav>
       <span className="navbar-brand">
       <img className="logo" alt="logo" src="/img/logo.png" width="30" height="30"/>
@@ -36,14 +64,33 @@ var movieList = movieData.map((movie,i) => {
          <NavLink style={{color:'white'}}>Last Realeses</NavLink>
       </NavItem>
       <NavItem>
-         <NavLink><Button type="button">11 films</Button></NavLink>
+         <NavLink><Button id="PopoverLegacy" type="button">{moviesCount} films</Button></NavLink>
       </NavItem>
     </Nav>
+
 {/* content area */}
+
     <Row>
       {movieList}
     </Row>
     </Container>
+
+ {/* wish List */}
+
+    <UncontrolledPopover
+    placement="bottom"
+    target="PopoverLegacy"
+    trigger="legacy"
+  >
+    <PopoverHeader>
+      Wish List
+    </PopoverHeader>
+    <PopoverBody>
+    <ListGroup>
+    {wishList}
+</ListGroup>
+    </PopoverBody>
+  </UncontrolledPopover>
     </div>
   );
 }
