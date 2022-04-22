@@ -96,3 +96,5 @@ var wishList = moviesWishList.map((movie,i) => {
 }
 
 export default App;
+
+
